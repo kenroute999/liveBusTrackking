@@ -4,6 +4,7 @@ import { TrackingSearch } from "../components/TrackingSearch";
 import { TrackingStatus } from "../components/TrackingStatus";
 import { TripInfo } from "../components/TripInfo";
 import { useLiveTracking } from "../hooks/useLiveTracking";
+import { useRoadRoute } from "../hooks/useRoadRoute";
 
 interface Props {
   initialToken?: string | null;
@@ -12,6 +13,8 @@ interface Props {
 export function TrackingPage({ initialToken }: Props) {
   const [centerSignal, setCenterSignal] = useState(0);
   const { phase, trip, location, stop, connected, errorMessage, searchPnr, reset } = useLiveTracking(initialToken);
+
+  const road = useRoadRoute(location, stop);
 
   // The map is on screen as soon as the ticket is found; the bus joins it when it reports.
   const showMap = phase === "LIVE" || phase === "STALE" || phase === "NOT_STARTED";
@@ -74,9 +77,9 @@ export function TrackingPage({ initialToken }: Props) {
             </span>
             <TripInfo origin={trip.origin} destination={trip.destination} busNo={trip.bus.registrationNo} live={phase === "LIVE"} />
           </div>
-          <TrackingMap location={location} stop={stop} centerSignal={centerSignal} />
+          <TrackingMap location={location} stop={stop} road={road?.line ?? null} centerSignal={centerSignal} />
           {location && <button className="center-btn" onClick={() => setCenterSignal((n) => n + 1)}>Center Bus</button>}
-          <TrackingStatus phase={phase} location={location} stop={stop} connected={connected} />
+          <TrackingStatus phase={phase} location={location} stop={stop} road={road} connected={connected} />
         </main>
       )}
     </div>

@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, fetchCurrentLocation, lookupByPnr } from "../services/trackingApi";
 import type { LocationFix, StopInfo, TripInfo, TrackingPhase } from "../types/tracking";
 
-/** The conductor's phone reports about every 15 seconds; 90s with no position = stale. */
-const STALE_MS = 90_000;
+/** The phone aims for a position every 15 seconds, but a real phone (indoors, saving battery)
+ * often leaves gaps of a minute or two; only 3 minutes of silence counts as stale. */
+const STALE_MS = 180_000;
 /** How often the page asks the server where the bus is. */
 const POLL_MS = 10_000;
 
