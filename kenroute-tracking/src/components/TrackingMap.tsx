@@ -6,6 +6,8 @@ interface Props {
   location: LocationFix | null;
   /** The passenger's own boarding or dropping point, when its position is known. */
   stop: StopInfo | null;
+  /** The road from the bus to the stop; a straight dashed line is drawn until it is known. */
+  road: [number, number][] | null;
   /** Increment to force a recenter on the bus. */
   centerSignal: number;
 }
@@ -24,11 +26,12 @@ const STOP_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 44" wi
   <circle cx="16" cy="16" r="6" fill="#fff"/>
 </svg>`;
 
-export function TrackingMap({ location, stop, centerSignal }: Props) {
+export function TrackingMap({ location, stop, road, centerSignal }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const stopRef = useRef<L.Marker | null>(null);
+  const lineRef = useRef<L.Polyline | null>(null);
   /** What the view was last framed around, so the map moves only when that changes. */
   const framed = useRef("");
 
@@ -45,8 +48,24 @@ export function TrackingMap({ location, stop, centerSignal }: Props) {
       mapRef.current = null;
       markerRef.current = null;
       stopRef.current = null;
+      lineRef.current = null;
     };
   }, []);
+
+  // The way from the bus to the passenger's stop.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    lineRef.current?.remove();
+    lineRef.current = null;
+    if (!location || !stop) return;
+    lineRef.current = road
+      ? L.polyline(road, { color: "#2563eb", weight: 5, opacity: 0.85 }).addTo(map)
+      : L.polyline(
+          [[location.latitude, location.longitude], [stop.latitude, stop.longitude]],
+          { color: "#2563eb", weight: 3, opacity: 0.7, dashArray: "6 8" },
+        ).addTo(map);
+  }, [location, stop, road]);
 
   useEffect(() => {
     const map = mapRef.current;

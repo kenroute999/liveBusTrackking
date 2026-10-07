@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import type { RoadRoute } from "../hooks/useRoadRoute";
 import type { LocationFix, StopInfo, TrackingPhase } from "../types/tracking";
 
 interface Props {
   phase: TrackingPhase;
   location: LocationFix | null;
   stop: StopInfo | null;
+  /** Road distance and driving time, when the route service answered. */
+  road: RoadRoute | null;
   connected: boolean;
 }
 
@@ -23,12 +26,16 @@ function ageLabel(recordedAt: string | undefined): string {
   return `${mins} minute${mins === 1 ? "" : "s"} ago`;
 }
 
-export function TrackingStatus({ phase, location, stop, connected }: Props) {
+export function TrackingStatus({ phase, location, stop, road, connected }: Props) {
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(id);
   }, []);
+
+  // The road's own figures are better than the server's straight-line estimate.
+  const minutes = road?.minutes ?? stop?.etaMinutes ?? null;
+  const km = road?.km ?? stop?.distanceKm ?? null;
 
   const speedKmh = typeof location?.speed === "number" ? Math.round(location.speed * 3.6) : null;
 
@@ -38,9 +45,9 @@ export function TrackingStatus({ phase, location, stop, connected }: Props) {
         <div className="eta">
           <span className="eta-label">{stop.kind === "BOARDING" ? "Your boarding point" : "Your dropping point"}</span>
           <strong>{stop.name}</strong>
-          {phase === "LIVE" && stop.etaMinutes !== null && stop.distanceKm !== null && (
+          {(phase === "LIVE" || phase === "STALE") && minutes !== null && km !== null && (
             <span className="eta-time">
-              Bus is about <b>{etaLabel(stop.etaMinutes)}</b> away ({stop.distanceKm} km)
+              {phase === "LIVE" ? "Bus is about" : "Bus was about"} <b>{etaLabel(minutes)}</b> away ({km} km)
             </span>
           )}
         </div>
