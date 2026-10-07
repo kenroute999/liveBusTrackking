@@ -4,7 +4,7 @@ import type { LocationFix, TrackingPhase } from "../types/tracking";
 interface Props {
   phase: TrackingPhase;
   location: LocationFix | null;
-  socketConnected: boolean;
+  connected: boolean;
 }
 
 function ageLabel(recordedAt: string | undefined): string {
@@ -15,7 +15,7 @@ function ageLabel(recordedAt: string | undefined): string {
   return `${mins} minute${mins === 1 ? "" : "s"} ago`;
 }
 
-export function TrackingStatus({ phase, location, socketConnected }: Props) {
+export function TrackingStatus({ phase, location, connected }: Props) {
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 1000);
@@ -38,7 +38,7 @@ export function TrackingStatus({ phase, location, socketConnected }: Props) {
           {location && <div className="sub">Last updated: {ageLabel(location.recordedAt)}</div>}
         </div>
       )}
-      {!socketConnected && (phase === "LIVE" || phase === "STALE") && (
+      {!connected && (phase === "LIVE" || phase === "STALE") && (
         <div className="banner info">Connection lost — reconnecting…</div>
       )}
     </div>
