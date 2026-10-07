@@ -16,16 +16,29 @@ export interface LocationFix {
   recordedAt: string;
 }
 
+/** The passenger's own stop: where they board, or once on the bus, where they get down. */
+export interface StopInfo {
+  kind: "BOARDING" | "DROPPING";
+  name: string;
+  latitude: number;
+  longitude: number;
+  /** Road distance from the bus, and minutes to reach the stop; null until the bus reports. */
+  distanceKm: number | null;
+  etaMinutes: number | null;
+}
+
 export interface LookupResponse {
   token: string;
   expiresInSeconds: number;
   trip: TripInfo;
   location: LocationFix | null;
+  stop: StopInfo | null;
 }
 
 export interface LocationResponse {
   trip: TripInfo;
   location: LocationFix | null;
+  stop: StopInfo | null;
 }
 
 export type TrackingPhase =
