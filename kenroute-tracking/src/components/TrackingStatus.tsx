@@ -38,6 +38,11 @@ export function TrackingStatus({ phase, location, connected }: Props) {
           {location && <div className="sub">Last updated: {ageLabel(location.recordedAt)}</div>}
         </div>
       )}
+      {phase === "NOT_STARTED" && (
+        <div className="banner info">
+          Your bus is not on the map yet. It shows here live from about an hour before departure.
+        </div>
+      )}
       {!connected && (phase === "LIVE" || phase === "STALE") && (
         <div className="banner info">Connection lost — reconnecting…</div>
       )}
