@@ -37,5 +37,4 @@ export type TrackingPhase =
   | "COMPLETED"
   | "NOT_FOUND"
   | "EXPIRED"
-  | "NETWORK_ERROR"
-  | "SOCKET_DISCONNECTED";
+  | "NETWORK_ERROR";

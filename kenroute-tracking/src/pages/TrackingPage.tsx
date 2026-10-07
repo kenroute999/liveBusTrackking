@@ -11,7 +11,7 @@ interface Props {
 
 export function TrackingPage({ initialToken }: Props) {
   const [centerSignal, setCenterSignal] = useState(0);
-  const { phase, trip, location, socketConnected, errorMessage, searchPnr, searchMobile, reset } = useLiveTracking(initialToken);
+  const { phase, trip, location, connected, errorMessage, searchPnr, reset } = useLiveTracking(initialToken);
 
   const showMap = phase === "LIVE" || phase === "STALE";
 
@@ -27,8 +27,8 @@ export function TrackingPage({ initialToken }: Props) {
       {phase === "SEARCH" && (
         <main className="search-screen">
           <h2>Track Your Bus</h2>
-          <p>Track your bus using your booking.</p>
-          <TrackingSearch onSearchPnr={searchPnr} onSearchMobile={searchMobile} />
+          <p>Enter the PNR printed on your ticket.</p>
+          <TrackingSearch onSearchPnr={searchPnr} />
         </main>
       )}
 
@@ -36,7 +36,7 @@ export function TrackingPage({ initialToken }: Props) {
 
       {phase === "NOT_FOUND" && (
         <main className="status-screen">
-          <p>We couldn't find a booking for that. Check your PNR or mobile number.</p>
+          <p>We couldn't find a ticket for that PNR. Check it and try again.</p>
           <button className="primary" onClick={reset}>Try again</button>
         </main>
       )}
@@ -58,7 +58,7 @@ export function TrackingPage({ initialToken }: Props) {
       {phase === "NOT_STARTED" && trip && (
         <main className="status-screen">
           <TripInfo origin={trip.origin} destination={trip.destination} busNo={trip.bus.registrationNo} live={false} />
-          <p>Your bus hasn't started yet. We'll show it live here once the conductor begins the trip.</p>
+          <p>Your bus is not on the map yet. It shows here live from about an hour before departure.</p>
           <button className="primary" onClick={reset}>Different booking</button>
         </main>
       )}
@@ -81,7 +81,7 @@ export function TrackingPage({ initialToken }: Props) {
           </div>
           <TrackingMap location={location} centerSignal={centerSignal} />
           <button className="center-btn" onClick={() => setCenterSignal((n) => n + 1)}>Center Bus</button>
-          <TrackingStatus phase={phase} location={location} socketConnected={socketConnected} />
+          <TrackingStatus phase={phase} location={location} connected={connected} />
         </main>
       )}
     </div>
