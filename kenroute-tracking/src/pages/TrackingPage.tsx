@@ -13,7 +13,8 @@ export function TrackingPage({ initialToken }: Props) {
   const [centerSignal, setCenterSignal] = useState(0);
   const { phase, trip, location, connected, errorMessage, searchPnr, reset } = useLiveTracking(initialToken);
 
-  const showMap = phase === "LIVE" || phase === "STALE";
+  // The map is on screen as soon as the ticket is found; the bus joins it when it reports.
+  const showMap = phase === "LIVE" || phase === "STALE" || phase === "NOT_STARTED";
 
   return (
     <div className="page">
@@ -36,7 +37,7 @@ export function TrackingPage({ initialToken }: Props) {
 
       {phase === "NOT_FOUND" && (
         <main className="status-screen">
-          <p>We couldn't find a ticket for that PNR. Check it and try again.</p>
+          <p>Please enter valid details.</p>
           <button className="primary" onClick={reset}>Try again</button>
         </main>
       )}
@@ -55,14 +56,6 @@ export function TrackingPage({ initialToken }: Props) {
         </main>
       )}
 
-      {phase === "NOT_STARTED" && trip && (
-        <main className="status-screen">
-          <TripInfo origin={trip.origin} destination={trip.destination} busNo={trip.bus.registrationNo} live={false} />
-          <p>Your bus is not on the map yet. It shows here live from about an hour before departure.</p>
-          <button className="primary" onClick={reset}>Different booking</button>
-        </main>
-      )}
-
       {phase === "COMPLETED" && trip && (
         <main className="status-screen">
           <TripInfo origin={trip.origin} destination={trip.destination} busNo={trip.bus.registrationNo} live={false} />
@@ -76,11 +69,13 @@ export function TrackingPage({ initialToken }: Props) {
       {showMap && trip && (
         <main className="live-screen">
           <div className="live-header">
-            <span className={phase === "LIVE" ? "pill live" : "pill stale"}>{phase === "LIVE" ? "🟢 LIVE" : "🟠 STALE"}</span>
+            <span className={phase === "LIVE" ? "pill live" : "pill stale"}>
+              {phase === "LIVE" ? "🟢 LIVE" : phase === "STALE" ? "🟠 STALE" : "⏳ NOT STARTED"}
+            </span>
             <TripInfo origin={trip.origin} destination={trip.destination} busNo={trip.bus.registrationNo} live={phase === "LIVE"} />
           </div>
           <TrackingMap location={location} centerSignal={centerSignal} />
-          <button className="center-btn" onClick={() => setCenterSignal((n) => n + 1)}>Center Bus</button>
+          {location && <button className="center-btn" onClick={() => setCenterSignal((n) => n + 1)}>Center Bus</button>}
           <TrackingStatus phase={phase} location={location} connected={connected} />
         </main>
       )}

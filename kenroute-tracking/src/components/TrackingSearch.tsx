@@ -16,7 +16,7 @@ export function TrackingSearch({ onSearchPnr, busy }: Props) {
     setError(null);
     const value = pnr.trim().toUpperCase();
     if (!/^KR[A-Z0-9]{6}$/.test(value)) {
-      setError("Enter the PNR printed on your ticket, like KRAB12CD");
+      setError("Please enter valid details.");
       return;
     }
     onSearchPnr(value);
