@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
-import type { LocationFix, TrackingPhase } from "../types/tracking";
+import type { LocationFix, StopInfo, TrackingPhase } from "../types/tracking";
 
 interface Props {
   phase: TrackingPhase;
   location: LocationFix | null;
+  stop: StopInfo | null;
   connected: boolean;
+}
+
+function etaLabel(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest === 0 ? `${hours} hr` : `${hours} hr ${rest} min`;
 }
 
 function ageLabel(recordedAt: string | undefined): string {
@@ -15,7 +23,7 @@ function ageLabel(recordedAt: string | undefined): string {
   return `${mins} minute${mins === 1 ? "" : "s"} ago`;
 }
 
-export function TrackingStatus({ phase, location, connected }: Props) {
+export function TrackingStatus({ phase, location, stop, connected }: Props) {
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 1000);
@@ -26,6 +34,17 @@ export function TrackingStatus({ phase, location, connected }: Props) {
 
   return (
     <div className="status-bar">
+      {stop && (
+        <div className="eta">
+          <span className="eta-label">{stop.kind === "BOARDING" ? "Your boarding point" : "Your dropping point"}</span>
+          <strong>{stop.name}</strong>
+          {phase === "LIVE" && stop.etaMinutes !== null && stop.distanceKm !== null && (
+            <span className="eta-time">
+              Bus is about <b>{etaLabel(stop.etaMinutes)}</b> away ({stop.distanceKm} km)
+            </span>
+          )}
+        </div>
+      )}
       {phase === "LIVE" && (
         <>
           {speedKmh !== null && <span className="stat">Speed: {speedKmh} km/h</span>}

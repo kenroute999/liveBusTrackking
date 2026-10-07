@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, fetchCurrentLocation, lookupByPnr } from "../services/trackingApi";
-import type { LocationFix, TripInfo, TrackingPhase } from "../types/tracking";
+import type { LocationFix, StopInfo, TripInfo, TrackingPhase } from "../types/tracking";
 
 /** The conductor's phone reports about every 15 seconds; 90s with no position = stale. */
 const STALE_MS = 90_000;
@@ -11,12 +11,13 @@ interface LiveState {
   phase: TrackingPhase;
   trip: TripInfo | null;
   location: LocationFix | null;
+  stop: StopInfo | null;
   errorMessage: string | null;
   /** False while the server cannot be reached. */
   connected: boolean;
 }
 
-const initial: LiveState = { phase: "SEARCH", trip: null, location: null, errorMessage: null, connected: true };
+const initial: LiveState = { phase: "SEARCH", trip: null, location: null, stop: null, errorMessage: null, connected: true };
 
 function derivePhase(trip: TripInfo | null, location: LocationFix | null): TrackingPhase {
   if (!trip) return "NOT_FOUND";
@@ -45,7 +46,7 @@ export function useLiveTracking(initialToken?: string | null) {
     setState((s) => ({ ...s, phase: "LOADING", errorMessage: null }));
     const refresh = async () => {
       const res = await fetchCurrentLocation(token);
-      setState((s) => ({ ...s, trip: res.trip, location: res.location, phase: derivePhase(res.trip, res.location), connected: true }));
+      setState((s) => ({ ...s, trip: res.trip, location: res.location, stop: res.stop ?? null, phase: derivePhase(res.trip, res.location), connected: true }));
     };
     try {
       await refresh();
