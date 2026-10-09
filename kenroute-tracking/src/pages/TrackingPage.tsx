@@ -12,6 +12,7 @@ interface Props {
 
 export function TrackingPage({ initialToken }: Props) {
   const [centerSignal, setCenterSignal] = useState(0);
+  const [follow, setFollow] = useState(false);
   const { phase, trip, location, stop, connected, errorMessage, searchPnr, searchMobile, reset } = useLiveTracking(initialToken);
 
   const road = useRoadRoute(location, stop);
@@ -77,7 +78,14 @@ export function TrackingPage({ initialToken }: Props) {
             </span>
             <TripInfo origin={trip.origin} destination={trip.destination} busNo={trip.bus.registrationNo} live={phase === "LIVE"} />
           </div>
-          <TrackingMap location={location} stop={stop} road={road?.line ?? null} centerSignal={centerSignal} />
+          <TrackingMap
+            location={location}
+            stop={stop}
+            road={road?.line ?? null}
+            centerSignal={centerSignal}
+            follow={follow}
+            onFollowChange={setFollow}
+          />
           {location && <button className="center-btn" onClick={() => setCenterSignal((n) => n + 1)}>Center Bus</button>}
           <TrackingStatus phase={phase} location={location} stop={stop} road={road} connected={connected} />
         </main>
