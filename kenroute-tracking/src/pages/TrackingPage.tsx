@@ -12,7 +12,7 @@ interface Props {
 
 export function TrackingPage({ initialToken }: Props) {
   const [centerSignal, setCenterSignal] = useState(0);
-  const { phase, trip, location, stop, connected, errorMessage, searchPnr, reset } = useLiveTracking(initialToken);
+  const { phase, trip, location, stop, connected, errorMessage, searchPnr, searchMobile, reset } = useLiveTracking(initialToken);
 
   const road = useRoadRoute(location, stop);
 
@@ -31,8 +31,8 @@ export function TrackingPage({ initialToken }: Props) {
       {phase === "SEARCH" && (
         <main className="search-screen">
           <h2>Track Your Bus</h2>
-          <p>Enter the PNR printed on your ticket.</p>
-          <TrackingSearch onSearchPnr={searchPnr} />
+          <p>Enter the PNR printed on your ticket, or the mobile number it was booked with.</p>
+          <TrackingSearch onSearchPnr={searchPnr} onSearchMobile={searchMobile} />
         </main>
       )}
 

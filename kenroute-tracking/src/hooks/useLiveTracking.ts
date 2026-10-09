@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, fetchCurrentLocation, lookupByPnr } from "../services/trackingApi";
+import { ApiError, fetchCurrentLocation, lookupByMobile, lookupByPnr } from "../services/trackingApi";
 import type { LocationFix, StopInfo, TripInfo, TrackingPhase } from "../types/tracking";
 
 /** The phone aims for a position every 15 seconds, but a real phone (indoors, saving battery)
@@ -87,6 +87,19 @@ export function useLiveTracking(initialToken?: string | null) {
     [start],
   );
 
+  const searchMobile = useCallback(
+    async (mobile: string) => {
+      setState((s) => ({ ...s, phase: "LOADING", errorMessage: null }));
+      try {
+        const res = await lookupByMobile(mobile);
+        await start(res.token);
+      } catch (err) {
+        setState((s) => ({ ...s, phase: mapSearchError(err), errorMessage: err instanceof Error ? err.message : null }));
+      }
+    },
+    [start],
+  );
+
   const reset = useCallback(() => {
     stopPolling();
     history.replaceState(null, "", "/");
@@ -99,5 +112,5 @@ export function useLiveTracking(initialToken?: string | null) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { ...state, searchPnr, start, reset };
+  return { ...state, searchPnr, searchMobile, start, reset };
 }

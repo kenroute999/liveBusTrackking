@@ -33,6 +33,10 @@ export function lookupByPnr(pnr: string): Promise<LookupResponse> {
   return send("/tracking/lookup", { method: "POST", body: JSON.stringify({ pnr }) });
 }
 
+export function lookupByMobile(mobile: string): Promise<LookupResponse> {
+  return send("/tracking/lookup", { method: "POST", body: JSON.stringify({ mobile }) });
+}
+
 export function fetchCurrentLocation(token: string): Promise<LocationResponse> {
   return send("/tracking/location", { headers: { Authorization: `Bearer ${token}` } });
 }
